@@ -46,8 +46,13 @@ class AttachedFileField(serializers.WritableField):
         if not obj:
             return None
 
+        try:
+            data = base64.b64encode(obj.read()).decode('utf-8')
+        except FileNotFoundError:
+            data = None
+
         return OrderedDict([
-            ("data", base64.b64encode(obj.read()).decode('utf-8')),
+            ("data", data),
             ("name", os.path.basename(obj.name)),
         ])
 
@@ -120,7 +125,7 @@ class ProjectRelatedField(serializers.RelatedField):
 
 class HistoryUserField(JsonField):
     def to_native(self, obj):
-        if obj is None:
+        if obj is None or obj == {}:
             return []
         try:
             user = users_models.User.objects.get(pk=obj['pk'])
@@ -190,7 +195,7 @@ class HistoryExportSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = history_models.HistoryEntry
-        exclude = ("id", "comment_html")
+        exclude = ("id", "comment_html", "key")
 
 
 class HistoryExportSerializerMixin(serializers.ModelSerializer):

@@ -1,0 +1,10 @@
+Hello {{ user.get_full_name() }},
+
+your project dump has been correctly imported. You can see the project here:
+
+{{ resolve_front_url('project', project.slug) }}
+
+Regards
+
+--
+The Taiga Team
